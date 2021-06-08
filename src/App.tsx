@@ -3,38 +3,38 @@ import { useQuery } from "react-query";
 import Header from "./components/Header";
 import { LinearProgress, Modal, Backdrop, Fade } from "@material-ui/core";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-// import { Dummydata } from "./DummyData";
 //types
 type ItemType = {
   owner: {
-    user_id: string;
+    user_id: string | undefined;
     display_name: string;
   };
   title: string;
-  question_id: number;
+  question_id: number | string;
   creation_date: number;
   link: string;
-  key: string;
+  key: number | string;
 };
 
 type DataType = {
   items: ItemType[];
+  quota_max: number;
+  quota_remaining: number;
 };
 
-let url =
-  "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=activity&site=stackoverflow";
-const getData = async (): Promise<DataType> => await (await fetch(url)).json();
-
+//customize modal
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     modal: {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      margin: "auto",
+      width: "40vw",
     },
     paper: {
       backgroundColor: theme.palette.background.paper,
-      border: "2px solid #000",
+      border: "2px solid #fefefe",
       boxShadow: theme.shadows[5],
       padding: theme.spacing(2, 4, 3),
       outline: "none",
@@ -43,14 +43,30 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const App = () => {
+  //fetch data
+  let url =
+    "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=activity&site=stackoverflow";
+  const getData = async (): Promise<DataType> =>
+    await (await fetch(url)).json();
+
   const { data, isLoading, error } = useQuery<DataType>("data", getData);
   console.log("data", data);
 
+  // destructure data to get pages
+  // const stackData = {
+  //   pages: [{ data }],
+  //   pageParams: [null],
+  // };
+
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [link, setLink] = useState("");
+  const [title, setTitle] = useState("");
 
-  const handleOpen = () => {
+  const handleOpen = (title: string, link: string) => {
     setOpen(true);
+    setLink(link);
+    setTitle(title);
   };
 
   const handleClose = () => {
@@ -58,7 +74,7 @@ const App = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center w-screen mx-2 my-3 md:mx-10">
+    <div className="flex flex-col justify-center w-screen mx-2 my-3 md:w-11/12">
       <Header />
 
       {!error ? (
@@ -89,60 +105,60 @@ const App = () => {
                   <button
                     type="button"
                     className="w-3/5 py-3 mt-2 text-white bg-red-400 rounded-r-full outline-none md:py-2 font-poppins hover:bg-yellow-400 focus:outline-none"
-                    onClick={handleOpen}
+                    onClick={() => handleOpen(title, link)}
                   >
                     More
                   </button>
-                  <Modal
-                    aria-labelledby="transition-modal-title"
-                    aria-describedby="transition-modal-description"
-                    className={classes.modal}
-                    open={open}
-                    onClose={handleClose}
-                    closeAfterTransition
-                    BackdropComponent={Backdrop}
-                    BackdropProps={{
-                      timeout: 500,
-                    }}
-                  >
-                    <Fade in={open}>
-                      <div className={classes.paper}>
-                        <h2
-                          id="transition-modal-title title"
-                          className="my-4 text-xl font-medium font-poppins"
-                        >
-                          {title}
-                        </h2>
-                        <a
-                          href={link}
-                          rel="noreferrer"
-                          target="_blank"
-                          id="transition-modal-description"
-                        >
-                          <button
-                            type="button"
-                            className="w-full py-2 my-2 text-black bg-red-400 rounded outline-none hover:opacity-90 focus:outline-none font-poppins"
-                          >
-                            Go to post
-                          </button>
-                        </a>
-
-                        <button
-                          type="button"
-                          className="w-full py-2 my-2 text-black transition bg-green-400 rounded outline-none delay-50 hover:opacity-90 focus:outline-none font-poppins"
-                          onClick={handleClose}
-                        >
-                          Close Modal
-                        </button>
-                      </div>
-                    </Fade>
-                  </Modal>
                 </div>
               </div>
             );
           })}
         </div>
       )}
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        className={classes.modal}
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={open}>
+          <div className={classes.paper}>
+            <h2
+              id="transition-modal-title title"
+              className="my-4 text-xl font-medium font-poppins"
+            >
+              {title}
+            </h2>
+            <a
+              href={link}
+              rel="noreferrer"
+              target="_blank"
+              id="transition-modal-description"
+            >
+              <button
+                type="button"
+                className="w-full py-2 my-2 text-black bg-red-400 rounded outline-none hover:opacity-90 focus:outline-none font-poppins"
+              >
+                Go to post
+              </button>
+            </a>
+
+            <button
+              type="button"
+              className="w-full py-2 my-2 text-black transition bg-green-400 rounded outline-none delay-50 hover:opacity-90 focus:outline-none font-poppins"
+              onClick={handleClose}
+            >
+              Close Modal
+            </button>
+          </div>
+        </Fade>
+      </Modal>
     </div>
   );
 };
