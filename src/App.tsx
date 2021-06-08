@@ -25,13 +25,6 @@ type DataType = {
 //customize modal
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    modal: {
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: "auto",
-      width: "40vw",
-    },
     paper: {
       backgroundColor: theme.palette.background.paper,
       border: "2px solid #fefefe",
@@ -122,7 +115,7 @@ const App = () => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className={classes.modal}
+        className="flex items-center justify-center w-10/12 mx-auto md:w-4/12"
         open={open}
         onClose={handleClose}
         closeAfterTransition
