@@ -89,6 +89,10 @@ const App = () => {
       ) : (
         <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row md:-mx-8 font-poppins">
           {data?.items.map(({ key, title, owner, creation_date, link }) => {
+            var dateCreated = new Date(creation_date * 1000).toLocaleDateString(
+              "us-EN"
+            );
+
             return (
               <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5 ">
                 <div className="leading-8" key={key}>
@@ -101,7 +105,7 @@ const App = () => {
                   <p className="px-4 text-xl truncate md:text-lg" id="title">
                     {title}
                   </p>
-                  <p className="px-4 py-1 text-sm">{creation_date}</p>
+                  <p className="px-4 py-1 text-sm">{dateCreated}</p>
                   <button
                     type="button"
                     className="w-3/5 py-3 mt-2 text-white bg-red-400 rounded-r-full outline-none md:py-2 font-poppins hover:bg-yellow-400 focus:outline-none"
