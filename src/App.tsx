@@ -3,11 +3,11 @@ import { useQuery } from "react-query";
 import Header from "./components/Header";
 import { LinearProgress, Modal, Backdrop, Fade } from "@material-ui/core";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import { Dummydata } from "./DummyData";
+// import { Dummydata } from "./DummyData";
 //types
 type ItemType = {
   owner: {
-    user_id: number;
+    user_id: string;
     display_name: string;
   };
   title: string;
@@ -21,7 +21,8 @@ type DataType = {
   items: ItemType[];
 };
 
-let url = "https://api.stackexchange.com/2.2/search";
+let url =
+  "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=activity&site=stackoverflow";
 const getData = async (): Promise<DataType> => await (await fetch(url)).json();
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -57,28 +58,33 @@ const App = () => {
   };
 
   return (
-    <div className="mx-2 my-3 md:mx-10">
+    <div className="flex flex-col justify-center w-screen mx-2 my-3 md:mx-10">
       <Header />
 
-      {error ? (
-        <div className="mt-10 text-2xl text-center font-poppins">
+      {!error ? (
+        ""
+      ) : (
+        <div className="flex justify-center mt-10 text-2xl font-poppins">
           Oops! Something went wrong...
         </div>
-      ) : (
-        ""
       )}
-      {isLoading ? (
+      {isLoading && !error ? (
         <LinearProgress color="secondary" />
       ) : (
-        <div className="flex flex-row flex-wrap items-center justify-center w-full font-poppins">
-          {Dummydata.map(({ id, title, owner, creation_date, link }) => {
+        <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row md:-mx-8 font-poppins">
+          {data?.items.map(({ key, title, owner, creation_date, link }) => {
             return (
-              <div className="m-3 border border-gray-100 rounded shadow-md lg:w-1/5 sm:w-1/3">
-                <div className="leading-8" key={id}>
-                  <h2 className="px-4 py-1 text-2xl font-bold text-gray-900 md:text-xl">
-                    {owner}
+              <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5 ">
+                <div className="leading-8" key={key}>
+                  <h2
+                    className="px-4 py-1 text-2xl font-bold text-gray-900 truncate md:text-xl"
+                    id={owner.user_id}
+                  >
+                    {owner.display_name}
                   </h2>
-                  <p className="px-4 text-xl truncate md:text-lg">{title}</p>
+                  <p className="px-4 text-xl truncate md:text-lg" id="title">
+                    {title}
+                  </p>
                   <p className="px-4 py-1 text-sm">{creation_date}</p>
                   <button
                     type="button"
@@ -102,7 +108,7 @@ const App = () => {
                     <Fade in={open}>
                       <div className={classes.paper}>
                         <h2
-                          id="transition-modal-title"
+                          id="transition-modal-title title"
                           className="my-4 text-xl font-medium font-poppins"
                         >
                           {title}
