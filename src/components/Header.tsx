@@ -2,7 +2,7 @@ import React from "react";
 
 const Header = () => {
   return (
-    <div className="mb-5 font-raleway">
+    <div className="mx-2 mb-5 font-raleway">
       <h1 className="text-6xl font-black">
         <span className="text-red-400">I</span>
         <span className="text-yellow-400">Q</span>

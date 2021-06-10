@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { useQuery } from "react-query";
+import { useEffect, useState } from "react";
+// import { useQuery } from "react-query";
 import Header from "./components/Header";
 import { LinearProgress, Modal, Backdrop, Fade } from "@material-ui/core";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { setTimeout } from "timers";
+import axios from "axios";
 //types
 type ItemType = {
   owner: {
@@ -13,13 +16,15 @@ type ItemType = {
   question_id: number | string;
   creation_date: number;
   link: string;
+  body: string;
   key: number | string;
 };
 
 type DataType = {
   items: ItemType[];
-  quota_max: number;
-  quota_remaining: number;
+  page: number;
+  page_size: number;
+  has_more: boolean;
 };
 
 //customize modal
@@ -37,85 +42,162 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const App = () => {
   //fetch data
-  let url =
-    "https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=activity&site=stackoverflow";
-  const getData = async (): Promise<DataType> =>
-    await (await fetch(url)).json();
+  // const getData = async (): Promise<DataType> =>
+  //   await (await fetch(url)).json();
 
-  const { data, isLoading, error } = useQuery<DataType>("data", getData);
-  console.log("data", data);
+  //api url
+  // let url =
+  //   "https://api.stackexchange.com/2.2/questions?include=page={page}&page_size={page_size}&unsafe=false&filter=!-t4wShp3p(Y1d*tlmyv*XT4ew8M02DUQ5X1AkBWTL70s4IVmUHjSbAR.Gf&site=stackoverflow";
 
-  // destructure data to get pages
-  // const stackData = {
-  //   pages: [{ data }],
-  //   pageParams: [null],
-  // };
+  //store data in useQuery and use params for loading, error, etc
+  // const { data, isLoading, error } = useQuery<DataType>("data", getData);
+  // console.log("data", data);
 
+  //define and initialize state
   const classes = useStyles();
+  const [data, setData] = useState<any>({});
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState("");
   const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [page_size, setPageSize] = useState(30);
+  const [page, setPage] = useState(1);
+  const [has_more, setHasMore] = useState(true);
 
-  const handleOpen = (title: string, link: string) => {
+  //infinite scroll logic
+
+  const fetchMoreData = async () => {
+    let url = `https://api.stackexchange.com/2.2/questions?page=${page}&page_size=${page_size}&unsafe=false&filter=!-t4wShp3p(Y1d*tlmyv*XT4ew8M02DUQ5X1AkBWTL70s4IVmUHjSbAR.Gf&site=stackoverflow`;
+
+    const getMoreData = async () => {
+      try {
+        const res = await axios.get(url);
+        const { data } = res;
+        const newData = data;
+        console.log("response", newData);
+        console.log("data length", data.items.length);
+        let totalData = [...data.items, ...newData.items];
+        data.items = totalData;
+        setData(data);
+        console.log("dataItems", data.items);
+        console.log("newData", newData.items);
+      } catch (error) {
+        console.log({ ...error });
+      }
+    };
+    await getMoreData();
+
+    setPage(page + 1);
+    setHasMore(has_more);
+
+    if (page_size >= 300) {
+      setHasMore(false);
+    }
+    console.log("Hello");
+    console.log("hasmore", has_more);
+    console.log("page", page);
+    console.log("pagesize", page_size);
+    console.log("data length", data.items?.length);
+  };
+
+  useEffect(() => {
+    fetchMoreData();
+  }, []);
+  
+  //set timeout logic
+  setTimeout(() => {
+    // setPageSize(30);
+    if (page_size > 30) {
+      setHasMore(true);
+      return;
+    }
+  }, 300);
+
+  //modal open
+  const handleOpen = (title: string, link: string, body: string) => {
     setOpen(true);
     setLink(link);
     setTitle(title);
+    setBody(body);
   };
 
+  //modal close
   const handleClose = () => {
     setOpen(false);
   };
 
+  //body from string to html element
+  // var htmlString = body;
+  // var questionBody = new DOMParser().parseFromString(htmlString, "text/xml");
+  // var bodyPost = questionBody.firstElementChild;
+  // // console.log(bodyPost);
+
   return (
-    <div className="flex flex-col justify-center w-screen mx-2 my-3 md:w-11/12">
+    <div className="flex flex-col justify-center w-screen my-3 md:w-full">
       <Header />
-
-      {!error ? (
-        ""
-      ) : (
-        <div className="flex justify-center mt-10 text-2xl font-poppins">
-          Oops! Something went wrong...
-        </div>
-      )}
-      {isLoading && !error ? (
-        <LinearProgress color="secondary" />
-      ) : (
+      <InfiniteScroll
+        dataLength={data.items !== undefined ? data.items.length : 0}
+        style={{ display: "flex", flexDirection: "column" }}
+        next={fetchMoreData}
+        hasMore={has_more}
+        loader={<h6>Loading...</h6>}
+        endMessage={
+          <p style={{ textAlign: "center" }}>
+            <b>Yay! You have seen it all</b>
+          </p>
+        }
+      >
+        {/* {!error ? (
+          ""
+        ) : (
+          <div className="mt-10 text-2xl text-center font-poppins">
+            Oops! Something went wrong...
+          </div>
+        )}
+        {isLoading && !error ? (
+          <LinearProgress color="secondary" />
+        ) : ( */}
         <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row md:-mx-8 font-poppins">
-          {data?.items.map(({ key, title, owner, creation_date, link }) => {
-            var dateCreated = new Date(creation_date * 1000).toLocaleDateString(
-              "us-EN"
-            );
+          {data.items?.map(
+            ({ key, title, owner, creation_date, link, body }: ItemType) => {
+              var dateCreated = new Date(
+                creation_date * 1000
+              ).toLocaleDateString("us-EN");
 
-            return (
-              <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5 ">
-                <div className="leading-8" key={key}>
-                  <h2
-                    className="px-4 py-1 text-2xl font-bold text-gray-900 truncate md:text-xl"
-                    id={owner.user_id}
-                  >
-                    {owner.display_name}
-                  </h2>
-                  <p className="px-4 text-xl truncate md:text-lg" id="title">
-                    {title}
-                  </p>
-                  <p className="px-4 py-1 text-sm">{dateCreated}</p>
-                  <button
-                    type="button"
-                    className="w-3/5 py-3 mt-2 text-white bg-red-400 rounded-r-full outline-none md:py-2 font-poppins hover:bg-yellow-400 focus:outline-none"
-                    onClick={() => handleOpen(title, link)}
-                  >
-                    More
-                  </button>
+              return (
+                <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5">
+                  <div className="leading-8" key={key}>
+                    <h2
+                      className="px-4 py-1 text-2xl font-bold text-gray-900 truncate md:text-xl"
+                      id={owner.user_id}
+                    >
+                      {owner.display_name}
+                    </h2>
+                    <p className="px-4 text-xl truncate md:text-lg" id="title">
+                      {title}
+                    </p>
+                    <p className="px-4 py-1 text-sm">{dateCreated}</p>
+                    <button
+                      type="button"
+                      className="w-3/5 py-3 mt-2 text-white bg-red-400 rounded-r-full outline-none md:py-2 font-poppins hover:bg-yellow-400 focus:outline-none"
+                      onClick={() => handleOpen(title, link, body)}
+                    >
+                      More
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            }
+          )}
         </div>
-      )}
+        {/* )} */}
+      </InfiniteScroll>
+
+      {}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className="flex items-center justify-center w-10/12 mx-auto md:w-4/12"
+        className="flex items-center justify-center w-10/12 h-full mx-auto md:w-4/12"
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -127,11 +209,12 @@ const App = () => {
         <Fade in={open}>
           <div className={classes.paper}>
             <h2
-              id="transition-modal-title title"
+              id="transition-modal-title"
               className="my-4 text-xl font-medium font-poppins"
             >
               {title}
             </h2>
+            <div className="text-sm">{body}</div>
             <a
               href={link}
               rel="noreferrer"
