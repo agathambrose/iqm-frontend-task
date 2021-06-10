@@ -20,12 +20,12 @@ type ItemType = {
   key: number | string;
 };
 
-type DataType = {
-  items: ItemType[];
-  page: number;
-  page_size: number;
-  has_more: boolean;
-};
+// type DataType = {
+//   items: ItemType[];
+//   page: number;
+//   page_size: number;
+//   has_more: boolean;
+// };
 
 //customize modal
 const useStyles = makeStyles((theme: Theme) =>
@@ -41,18 +41,6 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const App = () => {
-  //fetch data
-  // const getData = async (): Promise<DataType> =>
-  //   await (await fetch(url)).json();
-
-  //api url
-  // let url =
-  //   "https://api.stackexchange.com/2.2/questions?include=page={page}&page_size={page_size}&unsafe=false&filter=!-t4wShp3p(Y1d*tlmyv*XT4ew8M02DUQ5X1AkBWTL70s4IVmUHjSbAR.Gf&site=stackoverflow";
-
-  //store data in useQuery and use params for loading, error, etc
-  // const { data, isLoading, error } = useQuery<DataType>("data", getData);
-  // console.log("data", data);
-
   //define and initialize state
   const classes = useStyles();
   const [data, setData] = useState<any>({});
@@ -83,12 +71,17 @@ const App = () => {
         console.log("newData", newData.items);
       } catch (error) {
         console.log({ ...error });
+        if (error) {
+          <h4 className="font-medium text-center font-poppins">
+            Oops! Something went wrong..
+          </h4>;
+        }
       }
     };
     await getMoreData();
 
     setPage(page + 1);
-    setHasMore(has_more);
+    // setHasMore(has_more);
 
     if (page_size >= 300) {
       setHasMore(false);
@@ -102,11 +95,12 @@ const App = () => {
 
   useEffect(() => {
     fetchMoreData();
-  }, []);
-  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page_size]);
+
   //set timeout logic
   setTimeout(() => {
-    // setPageSize(30);
+    setPageSize(30);
     if (page_size > 30) {
       setHasMore(true);
       return;
@@ -137,26 +131,15 @@ const App = () => {
       <Header />
       <InfiniteScroll
         dataLength={data.items !== undefined ? data.items.length : 0}
-        style={{ display: "flex", flexDirection: "column" }}
         next={fetchMoreData}
         hasMore={has_more}
-        loader={<h6>Loading...</h6>}
+        loader={<LinearProgress color="secondary" />}
         endMessage={
           <p style={{ textAlign: "center" }}>
             <b>Yay! You have seen it all</b>
           </p>
         }
       >
-        {/* {!error ? (
-          ""
-        ) : (
-          <div className="mt-10 text-2xl text-center font-poppins">
-            Oops! Something went wrong...
-          </div>
-        )}
-        {isLoading && !error ? (
-          <LinearProgress color="secondary" />
-        ) : ( */}
         <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row md:-mx-8 font-poppins">
           {data.items?.map(
             ({ key, title, owner, creation_date, link, body }: ItemType) => {
