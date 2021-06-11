@@ -62,13 +62,9 @@ const App = () => {
         const res = await axios.get(url);
         const { data } = res;
         const newData = data;
-        console.log("response", newData);
-        console.log("data length", data.items.length);
         let totalData = [...data.items, ...newData.items];
         data.items = totalData;
         setData(data);
-        console.log("dataItems", data.items);
-        console.log("newData", newData.items);
       } catch (error) {
         console.log({ ...error });
         if (error) {
@@ -80,8 +76,11 @@ const App = () => {
     };
     await getMoreData();
 
-    setPage(page + 1);
-    // setHasMore(has_more);
+    if (page >= 1) {
+      setPage(page + 1);
+      setHasMore(has_more);
+    }
+    
 
     if (page_size >= 300) {
       setHasMore(false);
@@ -90,13 +89,12 @@ const App = () => {
     console.log("hasmore", has_more);
     console.log("page", page);
     console.log("pagesize", page_size);
-    console.log("data length", data.items?.length);
+    console.log("datalength", data.items?.length);
   };
 
   useEffect(() => {
     fetchMoreData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page_size]);
+  }, []);
 
   //set timeout logic
   setTimeout(() => {
@@ -151,9 +149,10 @@ const App = () => {
                 <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5">
                   <div className="leading-8" key={key}>
                     <h2
-                      className="px-4 py-1 text-2xl font-bold text-gray-900 truncate md:text-xl"
+                      className="px-4 py-1 text-2xl font-medium text-gray-900 truncate md:text-xl"
                       id={owner.user_id}
                     >
+                      <span className="font-bold">Author:</span>{" "}
                       {owner.display_name}
                     </h2>
                     <p className="px-4 text-xl truncate md:text-lg" id="title">
@@ -197,7 +196,7 @@ const App = () => {
             >
               {title}
             </h2>
-            <div className="text-sm">{body}</div>
+            {/* <div className="text-xs">{body}</div> */}
             <a
               href={link}
               rel="noreferrer"
