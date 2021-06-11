@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const App = () => {
   //define and initialize state
   const classes = useStyles();
-  const [data, setData] = useState<any>({});
+  const [data, setData] = useState<any | {}>({});
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState("");
   const [title, setTitle] = useState("");
@@ -53,7 +53,6 @@ const App = () => {
   const [has_more, setHasMore] = useState(true);
 
   //infinite scroll logic
-
   const fetchMoreData = async () => {
     let url = `https://api.stackexchange.com/2.2/questions?page=${page}&page_size=${page_size}&unsafe=false&filter=!-t4wShp3p(Y1d*tlmyv*XT4ew8M02DUQ5X1AkBWTL70s4IVmUHjSbAR.Gf&site=stackoverflow`;
 
