@@ -47,7 +47,7 @@ const App = () => {
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState("");
   const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+  // const [body, setBody] = useState("");
   const [page_size, setPageSize] = useState(30);
   const [page, setPage] = useState(1);
   const [has_more, setHasMore] = useState(true);
@@ -85,15 +85,11 @@ const App = () => {
     if (page_size >= 300) {
       setHasMore(false);
     }
-    console.log("Hello");
-    console.log("hasmore", has_more);
-    console.log("page", page);
-    console.log("pagesize", page_size);
-    console.log("datalength", data.items?.length);
   };
 
   useEffect(() => {
     fetchMoreData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //set timeout logic
@@ -110,7 +106,7 @@ const App = () => {
     setOpen(true);
     setLink(link);
     setTitle(title);
-    setBody(body);
+    // setBody(body);
   };
 
   //modal close
