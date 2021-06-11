@@ -59,8 +59,7 @@ const App = () => {
     const getMoreData = async () => {
       try {
         const res = await axios.get(url);
-        const { data } = res;
-        const newData = data;
+        const { data: newData } = res;
         let totalData = [...data.items, ...newData.items];
         data.items = totalData;
         setData(data);
@@ -79,7 +78,6 @@ const App = () => {
       setPage(page + 1);
       setHasMore(has_more);
     }
-    
 
     if (page_size >= 300) {
       setHasMore(false);
@@ -88,7 +86,7 @@ const App = () => {
 
   useEffect(() => {
     fetchMoreData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   //set timeout logic
@@ -133,7 +131,7 @@ const App = () => {
           </p>
         }
       >
-        <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row md:-mx-8 font-poppins">
+        <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row font-poppins">
           {data.items?.map(
             ({ key, title, owner, creation_date, link, body }: ItemType) => {
               var dateCreated = new Date(
@@ -167,10 +165,8 @@ const App = () => {
             }
           )}
         </div>
-        {/* )} */}
       </InfiniteScroll>
 
-      {}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -191,7 +187,6 @@ const App = () => {
             >
               {title}
             </h2>
-            {/* <div className="text-xs">{body}</div> */}
             <a
               href={link}
               rel="noreferrer"
