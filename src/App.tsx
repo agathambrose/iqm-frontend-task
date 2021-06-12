@@ -63,7 +63,7 @@ const App = () => {
         if (!data.items) return setData(newData);
         data.items = data.items.concat(newData.items)
       } catch (error) {
-        console.log({ ...error });
+        console.log(error);
         if (error) {
           <h4 className="font-medium text-center font-poppins">
             Oops! Something went wrong..
