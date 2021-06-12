@@ -60,9 +60,8 @@ const App = () => {
       try {
         const res = await axios.get(url);
         const { data: newData } = res;
-        let totalData = [...data.items, ...newData.items];
-        data.items = totalData;
-        setData(data);
+        if (!data.items) return setData(newData);
+        data.items = data.items.concat(newData.items)
       } catch (error) {
         console.log({ ...error });
         if (error) {
