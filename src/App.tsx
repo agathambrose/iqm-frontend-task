@@ -20,13 +20,6 @@ type ItemType = {
   key: number | string;
 };
 
-// type DataType = {
-//   items: ItemType[];
-//   page: number;
-//   page_size: number;
-//   has_more: boolean;
-// };
-
 //customize modal
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -46,6 +39,7 @@ const App = () => {
   const [data, setData] = useState<any | {}>({});
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState("");
+  // const [body, setBody] = useState("");
   const [title, setTitle] = useState("");
   // const [body, setBody] = useState("");
   const [page_size, setPageSize] = useState(30);
@@ -61,7 +55,7 @@ const App = () => {
         const res = await axios.get(url);
         const { data: newData } = res;
         if (!data.items) return setData(newData);
-        data.items = data.items.concat(newData.items)
+        data.items = data.items.concat(newData.items);
       } catch (error) {
         console.log(error);
         if (error) {
@@ -101,6 +95,7 @@ const App = () => {
   const handleOpen = (title: string, link: string, body: string) => {
     setOpen(true);
     setLink(link);
+    // setBody(body);
     setTitle(title);
     // setBody(body);
   };
@@ -110,15 +105,16 @@ const App = () => {
     setOpen(false);
   };
 
-  //body from string to html element
-  // var htmlString = body;
-  // var questionBody = new DOMParser().parseFromString(htmlString, "text/xml");
-  // var bodyPost = questionBody.firstElementChild;
-  // // console.log(bodyPost);
+  // body from string to html element
+  // let htmlString = body;
+  // let stringWithoutHtml = htmlString.replace(/(<([^>]+)>)/gi, "");
+  // console.log(stringWithoutHtml);
+  
 
   return (
     <div className="flex flex-col justify-center w-screen my-3 md:w-full">
       <Header />
+      <h3 className="my-4 text-3xl font-extrabold tracking-wider text-center">STACK OVERFLOW QUESTIONS</h3>
       <InfiniteScroll
         dataLength={data.items !== undefined ? data.items.length : 0}
         next={fetchMoreData}
@@ -169,7 +165,7 @@ const App = () => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className="flex items-center justify-center w-10/12 h-full mx-auto md:w-4/12"
+        className="flex items-center justify-center w-10/12 h-screen mx-auto overflow-y-scroll md:w-4/12"
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -186,6 +182,7 @@ const App = () => {
             >
               {title}
             </h2>
+            {/* <div><p>{stringWithoutHtml}</p></div> */}
             <a
               href={link}
               rel="noreferrer"
