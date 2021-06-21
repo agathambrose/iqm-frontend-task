@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-// import { useQuery } from "react-query";
 import Header from "./components/Header";
 import { LinearProgress, Modal, Backdrop, Fade } from "@material-ui/core";
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { setTimeout } from "timers";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 //types
 type ItemType = {
   owner: {
@@ -39,10 +38,8 @@ const App = () => {
   const [data, setData] = useState<any | {}>({});
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState("");
-  // const [body, setBody] = useState("");
   const [title, setTitle] = useState("");
-  // const [body, setBody] = useState("");
-  const [page_size, setPageSize] = useState(30);
+  const [page_size] = useState(30);
   const [page, setPage] = useState(1);
   const [has_more, setHasMore] = useState(true);
 
@@ -82,22 +79,11 @@ const App = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  //set timeout logic
-  setTimeout(() => {
-    setPageSize(30);
-    if (page_size > 30) {
-      setHasMore(true);
-      return;
-    }
-  }, 300);
-
   //modal open
-  const handleOpen = (title: string, link: string, body: string) => {
+  const handleOpen = (title: string, link: string) => {
     setOpen(true);
     setLink(link);
-    // setBody(body);
     setTitle(title);
-    // setBody(body);
   };
 
   //modal close
@@ -105,16 +91,12 @@ const App = () => {
     setOpen(false);
   };
 
-  // body from string to html element
-  // let htmlString = body;
-  // let stringWithoutHtml = htmlString.replace(/(<([^>]+)>)/gi, "");
-  // console.log(stringWithoutHtml);
-  
-
   return (
     <div className="flex flex-col justify-center w-screen my-3 md:w-full">
       <Header />
-      <h3 className="my-4 text-3xl font-extrabold tracking-wider text-center">STACK OVERFLOW QUESTIONS</h3>
+      <h3 className="my-4 text-3xl font-extrabold tracking-wider text-center">
+        STACK OVERFLOW QUESTIONS
+      </h3>
       <InfiniteScroll
         dataLength={data.items !== undefined ? data.items.length : 0}
         next={fetchMoreData}
@@ -129,28 +111,32 @@ const App = () => {
         <div className="flex flex-col flex-wrap items-center w-screen md:justify-center md:flex-row font-poppins">
           {data.items?.map(
             ({ key, title, owner, creation_date, link, body }: ItemType) => {
-              var dateCreated = new Date(
+              let dateCreated = new Date(
                 creation_date * 1000
               ).toLocaleDateString("us-EN");
 
               return (
-                <div className="w-4/5 m-3 border border-gray-100 rounded shadow-md lg:w-1/5">
+                <div className="w-4/5 m-3 transition-shadow delay-75 border border-gray-100 rounded shadow-md hover:shadow-xl lg:w-1/5">
                   <div className="leading-8" key={key}>
-                    <h2
-                      className="px-4 py-1 text-2xl font-medium text-gray-900 truncate md:text-xl"
+                    <div
+                      className="flex px-4 py-1 space-x-2 text-2xl font-medium text-gray-900 md:text-xl"
                       id={owner.user_id}
                     >
-                      <span className="font-bold">Author:</span>{" "}
-                      {owner.display_name}
-                    </h2>
+                      <span className="font-bold ">Author:</span>{" "}
+                      <ReactMarkdown className="capitalize truncate">
+                        {owner.display_name}
+                      </ReactMarkdown>
+                    </div>
                     <p className="px-4 text-xl truncate md:text-lg" id="title">
-                      {title}
+                      <ReactMarkdown className="capitalize truncate">
+                        {title}
+                      </ReactMarkdown>
                     </p>
                     <p className="px-4 py-1 text-sm">{dateCreated}</p>
                     <button
                       type="button"
                       className="w-3/5 py-3 mt-2 text-white bg-red-400 rounded-r-full outline-none md:py-2 font-poppins hover:bg-yellow-400 focus:outline-none"
-                      onClick={() => handleOpen(title, link, body)}
+                      onClick={() => handleOpen(title, link)}
                     >
                       More
                     </button>
@@ -165,7 +151,7 @@ const App = () => {
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
-        className="flex items-center justify-center w-10/12 h-screen mx-auto overflow-y-scroll md:w-4/12"
+        className="flex items-center justify-center w-10/12 h-screen mx-auto md:w-4/12"
         open={open}
         onClose={handleClose}
         closeAfterTransition
@@ -182,7 +168,6 @@ const App = () => {
             >
               {title}
             </h2>
-            {/* <div><p>{stringWithoutHtml}</p></div> */}
             <a
               href={link}
               rel="noreferrer"
